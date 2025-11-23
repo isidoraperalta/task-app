@@ -1,0 +1,1 @@
+export const DEV_PASSWORD = '1234';
