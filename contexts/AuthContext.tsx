@@ -1,9 +1,11 @@
 import { createContext, useState, useEffect, ReactNode } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { authService } from '@/services/authService';
 
 interface AuthContextType {
   user: string | null;
-  login: (username: string) => Promise<void>;
+  token: string | null;
+  login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   checkAuth: () => Promise<void>;
 }
@@ -16,20 +18,25 @@ interface AuthProviderProps {
 
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<string | null>(null);
+  const [token, setToken] = useState<string | null>(null);
 
-  const login = async (username: string) => {
+  const login = async (email: string, password: string) => {
     try {
-      await AsyncStorage.setItem('@auth_user', username);
-      setUser(username);
+      const response = await authService.login(email, password);
+      await AsyncStorage.setItem('@auth_token', response.data.token);
+      await AsyncStorage.setItem('@auth_user', response.data.user.email);
+      setToken(response.data.token);
+      setUser(response.data.user.email);
     } catch (error) {
-      console.error('Error al guardar usuario:', error);
+      throw error;
     }
   };
 
   const logout = async () => {
     try {
+      await AsyncStorage.removeItem('@auth_token');
       await AsyncStorage.removeItem('@auth_user');
-
+      setToken(null);
       setUser(null);
     } catch (error) {
       console.error('Error al cerrar sesión:', error);
@@ -38,9 +45,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const checkAuth = async () => {
     try {
+      const savedToken = await AsyncStorage.getItem('@auth_token');
       const savedUser = await AsyncStorage.getItem('@auth_user');
 
-      if (savedUser) {
+      if (savedToken && savedUser) {
+        setToken(savedToken);
         setUser(savedUser);
       }
     } catch (error) {
@@ -54,6 +63,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const value: AuthContextType = {
     user,
+    token,
     login,
     logout,
     checkAuth,

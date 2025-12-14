@@ -1,83 +1,14 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useFocusEffect } from 'expo-router';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useAuth } from '@/hooks/useAuth';
+import { useTasks } from '@/hooks/useTasks';
 import { TaskList } from '@/components/TaskList';
 import { FloatingActionButton } from '@/components/FloatingActionButton';
-import { Task } from '@/types/types';
 
 export default function TaskListScreen() {
-    const [tasks, setTasks] = useState<Task[]>([]);
     const router = useRouter();
-    const { user } = useAuth();
-
-    const loadTasks = async () => {
-        try {
-            if (!user) {
-                setTasks([]);
-                return;
-            }
-            const storageKey = `@tasks_${user}`;
-            const tasksJson = await AsyncStorage.getItem(storageKey);
-            if (tasksJson) {
-                const loadedTasks = JSON.parse(tasksJson);
-                setTasks(loadedTasks);
-            } else {
-                setTasks([]);
-            }
-        } catch (error) {
-            console.error('Error al cargar tareas:', error);
-            setTasks([]);
-        }
-    };
-
-    const handleToggleTask = async (taskId: string) => {
-        try {
-            if (!user) return;
-
-            const storageKey = `@tasks_${user}`;
-
-            const tasksJson = await AsyncStorage.getItem(storageKey);
-            if (!tasksJson) return;
-
-            const allTasks = JSON.parse(tasksJson) as Task[];
-
-            const updatedTasks = allTasks.map(task =>
-                task.id === taskId
-                    ? { ...task, completed: !task.completed }
-                    : task
-            );
-
-            await AsyncStorage.setItem(storageKey, JSON.stringify(updatedTasks));
-
-            setTasks(updatedTasks);
-        } catch (error) {
-            console.error('Error al cambiar estado de tarea:', error);
-        }
-    };
-
-    const handleDeleteTask = async (taskId: string) => {
-        try {
-            if (!user) return;
-
-            const storageKey = `@tasks_${user}`;
-
-            const tasksJson = await AsyncStorage.getItem(storageKey);
-            if (!tasksJson) return;
-
-            const allTasks = JSON.parse(tasksJson) as Task[];
-
-            const updatedTasks = allTasks.filter(task => task.id !== taskId);
-
-            await AsyncStorage.setItem(storageKey, JSON.stringify(updatedTasks));
-
-            setTasks(updatedTasks);
-        } catch (error) {
-            console.error('Error al eliminar tarea:', error);
-        }
-    };
+    const { tasks, isLoading, loadTasks, toggleTask, deleteTask } = useTasks();
 
     const handleCreateTask = () => {
         router.push('/create');
@@ -86,7 +17,7 @@ export default function TaskListScreen() {
     useFocusEffect(
         React.useCallback(() => {
             loadTasks();
-        }, [user])
+        }, [])
     );
 
     return (
@@ -96,8 +27,8 @@ export default function TaskListScreen() {
             </View>
             <TaskList
                 tasks={tasks}
-                onToggleTask={handleToggleTask}
-                onDeleteTask={handleDeleteTask}
+                onToggleTask={toggleTask}
+                onDeleteTask={deleteTask}
             />
             <FloatingActionButton onPress={handleCreateTask} />
         </SafeAreaView>

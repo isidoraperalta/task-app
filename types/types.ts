@@ -1,14 +1,15 @@
 export interface Location {
-  latitude: string;
-  longitude: string;
+  latitude: number;
+  longitude: number;
 }
 
 export interface Task {
   id: string;
   title: string;
   completed: boolean;
-  imageUri: string;
-  location: Location;
+  photoUri?: string;
+  location?: Location;
   createdAt: string;
+  updatedAt: string;
   userId: string;
 }

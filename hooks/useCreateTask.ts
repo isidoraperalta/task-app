@@ -3,13 +3,13 @@ import { Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import * as ExpoLocation from 'expo-location';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Location, Task } from '@/types/types';
+import { Location } from '@/types/types';
 import { useAuth } from '@/hooks/useAuth';
+import { taskService } from '@/services/taskService';
 
 export function useCreateTask() {
   const router = useRouter();
-  const { user } = useAuth();
+  const { token } = useAuth();
   const [title, setTitle] = useState<string>('');
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [location, setLocation] = useState<Location | null>(null);
@@ -74,8 +74,8 @@ export function useCreateTask() {
       });
 
       setLocation({
-        latitude: currentLocation.coords.latitude.toString(),
-        longitude: currentLocation.coords.longitude.toString(),
+        latitude: currentLocation.coords.latitude,
+        longitude: currentLocation.coords.longitude,
       });
 
     } catch (error: any) {
@@ -100,7 +100,7 @@ export function useCreateTask() {
         return;
       }
 
-      if (!user) {
+      if (!token) {
         Alert.alert(
           'Error de autenticación',
           'No hay un usuario autenticado. Por favor inicia sesión.',
@@ -109,26 +109,12 @@ export function useCreateTask() {
         return;
       }
 
-      const newTask: Task = {
-        id: Date.now().toString(),
+      await taskService.createTask(token, {
         title: title.trim(),
-        imageUri: imageUri || '',
-        location: location || { latitude: '0', longitude: '0' },
         completed: false,
-        userId: user,
-        createdAt: new Date().toISOString(),
-      };
-
-      const storageKey = `@tasks_${user}`;
-      const existingTasksJson = await AsyncStorage.getItem(storageKey);
-
-      const existingTasks: Task[] = existingTasksJson
-        ? JSON.parse(existingTasksJson)
-        : [];
-
-      const updatedTasks = [newTask, ...existingTasks];
-
-      await AsyncStorage.setItem(storageKey, JSON.stringify(updatedTasks));
+        location: location || undefined,
+        photoUri: imageUri || undefined,
+      });
 
       router.back();
 

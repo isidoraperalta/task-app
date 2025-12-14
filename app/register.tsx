@@ -1,12 +1,10 @@
-import { View, Text, StyleSheet, KeyboardAvoidingView, Platform, Pressable } from 'react-native';
+import { View, Text, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
-import { useLoginForm } from '@/hooks/useLoginForm';
+import { useRegisterForm } from '@/hooks/useRegisterForm';
 import { LoginForm } from '@/components/LoginForm';
 
-export default function LoginScreen() {
-  const router = useRouter();
-  const { email, setEmail, password, setPassword, isLoading, handleLogin } = useLoginForm();
+export default function RegisterScreen() {
+  const { email, setEmail, password, setPassword, isLoading, handleRegister } = useRegisterForm();
 
   return (
     <SafeAreaView style={styles.container}>
@@ -15,20 +13,16 @@ export default function LoginScreen() {
         style={styles.keyboardView}
       >
         <View style={styles.content}>
-          <Text style={styles.title}>Task App</Text>
-          <Text style={styles.subtitle}>Gestiona tus tareas con fotos y ubicación</Text>
+          <Text style={styles.title}>Crear Cuenta</Text>
+          <Text style={styles.subtitle}>Regístrate para comenzar</Text>
           <LoginForm
             username={email}
             onUsernameChange={setEmail}
             password={password}
             onPasswordChange={setPassword}
-            onSubmit={handleLogin}
+            onSubmit={handleRegister}
             isLoading={isLoading}
           />
-          <Text style={styles.info}>Ingresa tus credenciales para acceder</Text>
-          <Pressable onPress={() => router.push('/register')}>
-            <Text style={styles.registerLink}>¿No tienes cuenta? Regístrate</Text>
-          </Pressable>
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -40,44 +34,25 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F2F2F7',
   },
-
   keyboardView: {
     flex: 1,
   },
-
   content: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 24,
   },
-
   title: {
     fontSize: 32,
     fontWeight: 'bold',
     color: '#007AFF',
     marginBottom: 8,
   },
-
   subtitle: {
     fontSize: 16,
     color: '#8E8E93',
     marginBottom: 48,
     textAlign: 'center',
-  },
-
-  info: {
-    fontSize: 14,
-    color: '#8E8E93',
-    textAlign: 'center',
-    marginTop: 24,
-    paddingHorizontal: 32,
-  },
-
-  registerLink: {
-    fontSize: 16,
-    color: '#007AFF',
-    textAlign: 'center',
-    marginTop: 16,
   },
 });

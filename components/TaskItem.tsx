@@ -69,10 +69,10 @@ export function TaskItem({ task, onToggle, onDelete }: TaskItemProps) {
         </Pressable>
       </View>
 
-      {task.imageUri && (
+      {task.photoUri && (
         <View style={styles.imageContainer}>
           <Image
-            source={{ uri: task.imageUri }}
+            source={{ uri: task.photoUri }}
             style={styles.image}
             resizeMode="cover"
           />

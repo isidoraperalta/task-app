@@ -19,15 +19,16 @@ export function LoginForm({
 }: LoginFormProps) {
   return (
     <View style={styles.form}>
-      <Text style={styles.label}>Nombre de usuario</Text>
+      <Text style={styles.label}>Email</Text>
 
       <TextInput
         style={styles.input}
-        placeholder="Ingresa tu nombre de usuario"
+        placeholder="Ingresa tu email"
         value={username}
         onChangeText={onUsernameChange}
         autoCapitalize="none"
         autoCorrect={false}
+        keyboardType="email-address"
         returnKeyType="next"
         editable={!isLoading}
       />
