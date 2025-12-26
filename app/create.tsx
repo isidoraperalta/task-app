@@ -12,9 +12,11 @@ export default function CreateTaskScreen() {
   const {
     title,
     imageUri,
+    uploadedImageUrl,
     location,
     isLoadingLocation,
     isSaving,
+    isUploadingImage,
     setTitle,
     handleTakePhoto,
     handleSaveTask,
@@ -42,9 +44,11 @@ export default function CreateTaskScreen() {
           <CreateTaskForm
             title={title}
             imageUri={imageUri}
+            uploadedImageUrl={uploadedImageUrl}
             location={location}
             isLoadingLocation={isLoadingLocation}
             isSaving={isSaving}
+            isUploadingImage={isUploadingImage}
             isValid={isValid}
             onTitleChange={setTitle}
             onTakePhoto={handleTakePhoto}

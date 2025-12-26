@@ -76,6 +76,12 @@ export function TaskItem({ task, onToggle, onDelete }: TaskItemProps) {
             style={styles.image}
             resizeMode="cover"
           />
+          <View style={styles.imageUrlContainer}>
+            <Text style={styles.imageUrlLabel}>URL:</Text>
+            <Text style={styles.imageUrlText} numberOfLines={1}>
+              {task.photoUri}
+            </Text>
+          </View>
         </View>
       )}
 
@@ -132,6 +138,24 @@ const styles = StyleSheet.create({
   image: {
     width: '100%',
     height: 120,
+  },
+  imageUrlContainer: {
+    backgroundColor: '#F2F2F7',
+    padding: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  imageUrlLabel: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#8E8E93',
+  },
+  imageUrlText: {
+    flex: 1,
+    fontSize: 10,
+    color: '#007AFF',
+    fontFamily: 'monospace',
   },
   locationContainer: {
     flexDirection: 'row',

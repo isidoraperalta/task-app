@@ -5,9 +5,11 @@ import { Location } from '@/types/types';
 interface CreateTaskFormProps {
   title: string;
   imageUri: string | null;
+  uploadedImageUrl: string | null;
   location: Location | null;
   isLoadingLocation: boolean;
   isSaving: boolean;
+  isUploadingImage: boolean;
   isValid: boolean;
   onTitleChange: (text: string) => void;
   onTakePhoto: () => void;
@@ -17,9 +19,11 @@ interface CreateTaskFormProps {
 export function CreateTaskForm({
   title,
   imageUri,
+  uploadedImageUrl,
   location,
   isLoadingLocation,
   isSaving,
+  isUploadingImage,
   isValid,
   onTitleChange,
   onTakePhoto,
@@ -42,8 +46,14 @@ export function CreateTaskForm({
 
       <View style={styles.formGroup}>
         <Text style={styles.label}>Foto</Text>
-        <Pressable style={styles.photoButton} onPress={onTakePhoto}>
-          <Text style={styles.photoButtonText}>📷 Tomar Foto</Text>
+        <Pressable 
+          style={[styles.photoButton, isUploadingImage && styles.photoButtonDisabled]} 
+          onPress={onTakePhoto}
+          disabled={isUploadingImage}
+        >
+          <Text style={styles.photoButtonText}>
+            {isUploadingImage ? '⏳ Subiendo...' : '📷 Tomar Foto'}
+          </Text>
         </Pressable>
       </View>
 
@@ -55,6 +65,17 @@ export function CreateTaskForm({
             style={styles.imagePreview}
             resizeMode="cover"
           />
+        </View>
+      )}
+
+      {uploadedImageUrl && (
+        <View style={styles.urlContainer}>
+          <Text style={styles.label}>✅ URL de imagen subida</Text>
+          <View style={styles.urlInfo}>
+            <Text style={styles.urlText} numberOfLines={2}>
+              {uploadedImageUrl}
+            </Text>
+          </View>
         </View>
       )}
 
@@ -81,13 +102,13 @@ export function CreateTaskForm({
       <Pressable
         style={[
           styles.saveButton, 
-          (!isValid || isSaving) && styles.saveButtonDisabled
+          (!isValid || isSaving || isUploadingImage) && styles.saveButtonDisabled
         ]}
         onPress={onSaveTask}
-        disabled={!isValid || isSaving}
+        disabled={!isValid || isSaving || isUploadingImage}
       >
         <Text style={styles.saveButtonText}>
-          {isSaving ? 'Guardando...' : 'Guardar Tarea'}
+          {isSaving ? 'Guardando...' : isUploadingImage ? 'Subiendo imagen...' : 'Guardar Tarea'}
         </Text>
       </Pressable>
     </View>
@@ -123,6 +144,10 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 16,
     alignItems: 'center',
+  },
+  photoButtonDisabled: {
+    backgroundColor: '#8E8E93',
+    opacity: 0.6,
   },
   photoButtonText: {
     color: '#FFFFFF',
@@ -166,6 +191,21 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#000000',
     marginBottom: 4,
+  },
+  urlContainer: {
+    marginBottom: 24,
+  },
+  urlInfo: {
+    backgroundColor: '#D1ECF1',
+    borderRadius: 8,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#BEE5EB',
+  },
+  urlText: {
+    fontSize: 12,
+    color: '#0C5460',
+    fontFamily: 'monospace',
   },
   saveButton: {
     backgroundColor: '#34C759',

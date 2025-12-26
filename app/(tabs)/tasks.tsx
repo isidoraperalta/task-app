@@ -8,7 +8,7 @@ import { FloatingActionButton } from '@/components/FloatingActionButton';
 
 export default function TaskListScreen() {
     const router = useRouter();
-    const { tasks, isLoading, loadTasks, toggleTask, deleteTask } = useTasks();
+    const { tasks, loadTasks, toggleTask, deleteTask } = useTasks();
 
     const handleCreateTask = () => {
         router.push('/create');

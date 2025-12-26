@@ -6,12 +6,15 @@ import * as ExpoLocation from 'expo-location';
 import { Location } from '@/types/types';
 import { useAuth } from '@/hooks/useAuth';
 import { taskService } from '@/services/taskService';
+import { imageService } from '@/services/imageService';
 
 export function useCreateTask() {
   const router = useRouter();
   const { token } = useAuth();
   const [title, setTitle] = useState<string>('');
   const [imageUri, setImageUri] = useState<string | null>(null);
+  const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null);
+  const [isUploadingImage, setIsUploadingImage] = useState<boolean>(false);
   const [location, setLocation] = useState<Location | null>(null);
   const [isLoadingLocation, setIsLoadingLocation] = useState<boolean>(false);
   const [isSaving, setIsSaving] = useState<boolean>(false);
@@ -40,6 +43,7 @@ export function useCreateTask() {
         const capturedImageUri = result.assets[0].uri;
         setImageUri(capturedImageUri);
 
+        await handleUploadImage(capturedImageUri);
         await handleGetLocation();
       }
     } catch (error) {
@@ -49,6 +53,34 @@ export function useCreateTask() {
         'Ocurrió un error al intentar capturar la foto. Por favor, intenta nuevamente.',
         [{ text: 'OK' }]
       );
+    }
+  };
+
+  const handleUploadImage = async (uri: string) => {
+    try {
+      setIsUploadingImage(true);
+      
+      if (!token) {
+        throw new Error('No hay token de autenticación');
+      }
+
+      const imageUrl = await imageService.uploadImage(token, uri);
+      setUploadedImageUrl(imageUrl);
+      
+      Alert.alert(
+        'Imagen subida',
+        `Imagen subida exitosamente: ${imageUrl}`,
+        [{ text: 'OK' }]
+      );
+    } catch (error) {
+      console.error('Error al subir imagen:', error);
+      Alert.alert(
+        'Error',
+        'No se pudo subir la imagen al servidor. La tarea se guardará con la imagen local.',
+        [{ text: 'OK' }]
+      );
+    } finally {
+      setIsUploadingImage(false);
     }
   };
 
@@ -113,7 +145,7 @@ export function useCreateTask() {
         title: title.trim(),
         completed: false,
         location: location || undefined,
-        photoUri: imageUri || undefined,
+        photoUri: uploadedImageUrl || imageUri || undefined,
       });
 
       router.back();
@@ -135,9 +167,11 @@ export function useCreateTask() {
   return {
     title,
     imageUri,
+    uploadedImageUrl,
     location,
     isLoadingLocation,
     isSaving,
+    isUploadingImage,
     setTitle,
     setImageUri,
     setLocation,
